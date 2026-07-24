@@ -7,6 +7,7 @@ import { ReportPoller } from "@/components/report/ReportPoller";
 import { RetryButton } from "@/components/report/RetryButton";
 import { Section, Narrative, FieldGrid } from "@/components/report/Section";
 import { NatureBadge } from "@/components/report/NatureBadge";
+import { ReachabilityBadge } from "@/components/report/ReachabilityBadge";
 import {
   ChannelMixChart,
   CompetitorPriceChart,
@@ -285,7 +286,13 @@ async function ReportBody({ id }: { id: string }) {
                 )}
                 <span className="ml-2 text-xs text-neutral-500">{source.date}</span>
               </div>
-              <NatureBadge nature={source.natureFlag} />
+              <div className="flex items-center gap-2">
+                <ReachabilityBadge
+                  reachability={source.reachability}
+                  httpStatus={source.httpStatus}
+                />
+                <NatureBadge nature={source.natureFlag} />
+              </div>
             </li>
           ))}
         </ul>

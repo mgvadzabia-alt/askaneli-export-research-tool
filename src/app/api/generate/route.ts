@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRunningReport, markReportDone, markReportError } from "@/lib/store";
 import { generateResearchReport, HeadlessClaudeError } from "@/lib/research/runClaudeHeadless";
+import { verifyReportSources } from "@/lib/research/verifySources";
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
   // the report id immediately and let the client poll the report page while
   // this continues in the background, updating the status file when done.
   generateResearchReport(trimmedCountry, trimmedProduct)
+    .then((report) => verifyReportSources(report))
     .then((report) => markReportDone(id, report))
     .catch((err) => {
       const message =

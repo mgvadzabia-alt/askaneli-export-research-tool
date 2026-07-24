@@ -4,11 +4,23 @@
 
 export type SourceNature = "hard data" | "estimate" | "industry consensus";
 
+/**
+ * Result of the post-generation URL reachability check (see verifySources.ts).
+ * - "reachable": the URL responded with a non-error HTTP status.
+ * - "unreachable": the URL failed to resolve, timed out, or returned 4xx/5xx.
+ * - "unchecked": no URL was provided, or the check hasn't run.
+ */
+export type SourceReachability = "reachable" | "unreachable" | "unchecked";
+
 export interface SourceEntry {
   label: string;
   url: string;
   date: string;
   natureFlag: SourceNature;
+  /** Populated after generation by the URL reachability check; absent on older reports. */
+  reachability?: SourceReachability;
+  /** HTTP status code observed during the reachability check, when available. */
+  httpStatus?: number;
 }
 
 export interface PartnerCandidate {

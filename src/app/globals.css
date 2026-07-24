@@ -24,3 +24,41 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/*
+ * Print / "Save as PDF" styles (memo rec #5). The report is saved via the
+ * browser's native print dialog, so here we make that output clean:
+ * - force a light background even if the OS is in dark mode
+ * - keep badge/section colours (print-color-adjust: exact)
+ * - hide interactive chrome (nav, buttons marked print:hidden)
+ * - avoid breaking a section awkwardly across two pages
+ */
+@media print {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #171717 !important;
+  }
+
+  /* Preserve the coloured confidence / source / age badges in the PDF. */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Give the printed page comfortable margins. */
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* Don't split a report card across a page boundary where avoidable. */
+  section,
+  .avoid-break {
+    break-inside: avoid;
+  }
+}

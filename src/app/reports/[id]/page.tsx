@@ -11,6 +11,7 @@ import { ReachabilityBadge } from "@/components/report/ReachabilityBadge";
 import { ConfidenceBadge } from "@/components/report/ConfidenceBadge";
 import { RecommendationsSection } from "@/components/report/RecommendationsSection";
 import { ReportAgeBadge } from "@/components/report/ReportAgeBadge";
+import { DownloadPdfButton } from "@/components/report/DownloadPdfButton";
 import {
   ChannelMixChart,
   CompetitorPriceChart,
@@ -34,7 +35,7 @@ export default async function ReportPage({
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
-          <Link href="/" className="text-sm text-neutral-500 hover:underline">
+          <Link href="/" className="text-sm text-neutral-500 hover:underline print:hidden">
             ← Back to history
           </Link>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">
@@ -44,7 +45,10 @@ export default async function ReportPage({
             Requested {formatDateTime(entry.createdAt)}
           </p>
         </div>
-        <StatusBadge status={entry.status} />
+        <div className="flex items-center gap-3 print:hidden">
+          {entry.status === "done" && <DownloadPdfButton />}
+          <StatusBadge status={entry.status} />
+        </div>
       </div>
 
       {entry.status === "running" && (

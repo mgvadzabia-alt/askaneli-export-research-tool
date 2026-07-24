@@ -150,6 +150,33 @@ export interface ReportCharts {
   channelMix: ChannelMixPoint[];
 }
 
+/**
+ * Official Georgia -> target-market export figures pulled directly from UN
+ * Comtrade (not model-generated), one series per commodity. Attached to the
+ * report so the UI can surface this hard trade data as its own prominent block
+ * instead of leaving it buried among findings. Optional: absent when Comtrade
+ * had no data for the market or was unavailable.
+ */
+export interface TradeFlowYearPoint {
+  year: number;
+  /** Export value in USD. */
+  valueUsd: number;
+  /** Net weight in kilograms. */
+  netWeightKg: number;
+}
+
+export interface TradeFlowSeries {
+  /** Human label, e.g. "Wine (HS 2204)". */
+  commodityLabel: string;
+  points: TradeFlowYearPoint[];
+}
+
+export interface TradeFlowSummary {
+  partnerName: string;
+  sourceUrl: string;
+  series: TradeFlowSeries[];
+}
+
 export interface ReportMeta {
   country: string;
   product: string;
@@ -183,6 +210,11 @@ export interface MarketResearchReport {
   soWhat: NextAction[];
   sources: SourceEntry[];
   charts: ReportCharts;
+  /**
+   * Official UN Comtrade trade-flow figures for this market, filled directly
+   * from the API (not by the model). Optional / absent when unavailable.
+   */
+  tradeFlow?: TradeFlowSummary;
 }
 
 /** History index entry — one per generated report, kept in /data/index.json */

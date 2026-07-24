@@ -12,7 +12,7 @@ import {
   type ResearchFinding,
   type ResearchFindingsBatch,
 } from "./findingsSchema";
-import { fetchTradeFlowFindings } from "./comtrade";
+import { fetchTradeFlow } from "./comtrade";
 
 /**
  * Shape of the JSON envelope printed by `claude -p ... --output-format json`,
@@ -171,14 +171,9 @@ function parseJsonOrThrow(resultText: string, label: string): unknown {
  */
 export async function collectResearchFindings(
   country: string,
-  product: string
+  product: string,
+  tradeFlowFindings: Omit<ResearchFinding, "id">[] = []
 ): Promise<ResearchFindingsBatch> {
-  // Pull official trade-flow data FIRST, so the single most decisive metric
-  // (how much Georgia already exports to this market) enters as pre-verified
-  // hard data rather than a web-search estimate. Best-effort: never blocks a
-  // report if Comtrade is unavailable.
-  const tradeFlowFindings = await fetchTradeFlowFindings(country);
-
   const basePrompt = buildResearchPass(country, product);
 
   const attempt = async (prompt: string): Promise<ResearchFindingsBatch> => {
@@ -293,6 +288,15 @@ export async function generateResearchReport(
   product: string,
   language: "en" | "ka" = "en"
 ): Promise<MarketResearchReport> {
-  const findings = await collectResearchFindings(country, product);
-  return writeReportFromFindings(country, product, findings, language);
+  // Pull official trade-flow data once, up front: its findings seed the
+  // research pass (most decisive metric as pre-verified hard data), and its
+  // structured summary is attached to the finished report for prominent
+  // display. Best-effort — never blocks a report if Comtrade is unavailable.
+  const tradeFlow = await fetchTradeFlow(country);
+  const findings = await collectResearchFindings(country, product, tradeFlow.findings);
+  const report = await writeReportFromFindings(country, product, findings, language);
+  if (tradeFlow.summary) {
+    report.tradeFlow = tradeFlow.summary;
+  }
+  return report;
 }

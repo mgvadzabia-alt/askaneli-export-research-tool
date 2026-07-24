@@ -12,6 +12,9 @@ import { ConfidenceBadge } from "@/components/report/ConfidenceBadge";
 import { RecommendationsSection } from "@/components/report/RecommendationsSection";
 import { ReportAgeBadge } from "@/components/report/ReportAgeBadge";
 import { DownloadPdfButton } from "@/components/report/DownloadPdfButton";
+import { TrustSnapshot } from "@/components/report/TrustSnapshot";
+import { TradeFlowBlock } from "@/components/report/TradeFlowBlock";
+import { KeyNumbersStrip } from "@/components/report/KeyNumbersStrip";
 import {
   ChannelMixChart,
   CompetitorPriceChart,
@@ -94,6 +97,10 @@ async function ReportBody({ id, researchedAt }: { id: string; researchedAt: stri
         <ReportAgeBadge generatedAt={researchedAt} />
       </div>
 
+      {/* At-a-glance trust + official trade data, surfaced above the report body. */}
+      <TrustSnapshot report={report} />
+      <TradeFlowBlock tradeFlow={report.tradeFlow} />
+
       <Section title="Executive summary">
         <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-700">
           {report.executiveSummary.map((point, i) => (
@@ -101,6 +108,9 @@ async function ReportBody({ id, researchedAt }: { id: string; researchedAt: stri
           ))}
         </ul>
       </Section>
+
+      {/* Headline market numbers, pulled up from the dense grids below. */}
+      <KeyNumbersStrip report={report} />
 
       <RecommendationsSection actions={report.soWhat} />
 

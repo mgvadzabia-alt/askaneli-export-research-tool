@@ -36,18 +36,24 @@ async function probeUrl(
   const attempt = async (method: "HEAD" | "GET"): Promise<Response | null> => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), PER_URL_TIMEOUT_MS);
+    // A real browser-ish UA avoids some servers 403-ing default fetch agents.
+    const headers: Record<string, string> = {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; AskaneliResearchTool/1.0; +https://askaneli.ge)",
+    };
+    // On the GET fallback, ask for only the first byte to avoid downloading
+    // whole pages. Never send an (invalid) empty Range on the HEAD request —
+    // some servers answer a malformed Range with 400 and we'd wrongly flag a
+    // live URL as dead.
+    if (method === "GET") {
+      headers.Range = "bytes=0-0";
+    }
     try {
       return await fetch(url, {
         method,
         redirect: "follow",
         signal: controller.signal,
-        // A real browser-ish UA avoids some servers 403-ing default fetch agents.
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (compatible; AskaneliResearchTool/1.0; +https://askaneli.ge)",
-          // Ask for only the first byte on the GET fallback to avoid downloading whole pages.
-          Range: method === "GET" ? "bytes=0-0" : "",
-        },
+        headers,
       });
     } catch {
       return null;

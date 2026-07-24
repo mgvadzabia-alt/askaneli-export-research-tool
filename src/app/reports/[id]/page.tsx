@@ -48,8 +48,9 @@ export default async function ReportPage({
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
           <p className="font-medium">Researching your report — this typically takes 10-15 minutes.</p>
           <p className="mt-1 text-amber-800">
-            This page will update itself automatically once the report is ready. You can safely
-            leave and come back from the history list later.
+            The tool researches the market first (collecting source-tagged findings), then writes
+            the report from those findings only. This page will update itself automatically once
+            the report is ready — you can safely leave and come back from the history list later.
           </p>
           <ReportPoller id={id} />
         </div>
@@ -87,6 +88,24 @@ async function ReportBody({ id }: { id: string }) {
           ))}
         </ul>
       </Section>
+
+      {report.gaps && report.gaps.length > 0 && (
+        <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="text-sm font-semibold text-amber-900">
+            Research gaps — no reliable data found
+          </h2>
+          <p className="mt-1 text-xs text-amber-800">
+            These topics could not be backed by a usable source, so they were left
+            unfilled rather than estimated. Treat them as open questions to verify
+            manually.
+          </p>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-amber-900">
+            {report.gaps.map((gap, i) => (
+              <li key={i}>{gap}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <Section title="Market size & structure">
         <Narrative text={report.marketSizeStructure.narrative} />

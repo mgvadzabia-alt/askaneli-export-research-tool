@@ -1,6 +1,16 @@
 import spawn from "cross-spawn";
-import { buildResearchPrompt, JSON_ONLY_REMINDER } from "./buildPrompt";
+import {
+  buildResearchPass,
+  buildWritingPass,
+  FINDINGS_JSON_ONLY_REMINDER,
+  JSON_ONLY_REMINDER,
+} from "./buildPrompt";
 import { validateReport, type MarketResearchReport } from "./reportSchema";
+import {
+  normalizeFindingsBatch,
+  validateFindingsBatch,
+  type ResearchFindingsBatch,
+} from "./findingsSchema";
 
 /**
  * Shape of the JSON envelope printed by `claude -p ... --output-format json`,
@@ -37,11 +47,19 @@ export class HeadlessClaudeError extends Error {}
  * no such limit and was confirmed to work with `claude -p` (no prompt
  * argument) against the installed CLI.
  */
-function runClaudeOnce(prompt: string): Promise<string> {
+function runClaudeOnce(prompt: string, allowWebSearch: boolean): Promise<string> {
   return new Promise((resolve, reject) => {
     const childEnv = { ...process.env };
     delete childEnv.ANTHROPIC_API_KEY;
     delete childEnv.CLAUDE_CODE_OAUTH_TOKEN;
+
+    // The writing pass must not browse, so it physically cannot introduce a
+    // fact that isn't in the findings batch. We both drop WebSearch from the
+    // allow-list and explicitly deny it, so an empty allow-list value can't be
+    // misparsed into permitting it.
+    const toolArgs = allowWebSearch
+      ? ["--allowedTools", "WebSearch"]
+      : ["--disallowedTools", "WebSearch"];
 
     const child = spawn(
       "claude",
@@ -49,8 +67,7 @@ function runClaudeOnce(prompt: string): Promise<string> {
         "-p",
         "--output-format",
         "json",
-        "--allowedTools",
-        "WebSearch",
+        ...toolArgs,
         "--permission-mode",
         "bypassPermissions",
       ],
@@ -133,37 +150,87 @@ function extractJsonObject(text: string): string {
   return candidate.slice(start, end + 1);
 }
 
+/** Parses a JSON object out of CLI result text or throws a HeadlessClaudeError. */
+function parseJsonOrThrow(resultText: string, label: string): unknown {
+  const jsonText = extractJsonObject(resultText);
+  try {
+    return JSON.parse(jsonText);
+  } catch (e) {
+    throw new HeadlessClaudeError(
+      `${label} response was not valid JSON: ${(e as Error).message}. Raw response (truncated): ${resultText.slice(0, 1000)}`
+    );
+  }
+}
+
 /**
- * Runs the full research prompt for a country + product, parses the report
- * JSON out of the CLI's result text, and validates its shape. Retries once
- * with an added "JSON only" reminder if the first attempt doesn't parse or
- * validate. Throws HeadlessClaudeError on hard failure rather than ever
- * fabricating a report.
+ * PASS 1 — research. Runs the web-searching pass and returns a validated,
+ * normalized batch of source-tagged findings. Retries once with a JSON-only
+ * reminder if the first attempt doesn't parse or validate.
  */
-export async function generateResearchReport(
+export async function collectResearchFindings(
   country: string,
   product: string
-): Promise<MarketResearchReport> {
-  const basePrompt = buildResearchPrompt(country, product);
+): Promise<ResearchFindingsBatch> {
+  const basePrompt = buildResearchPass(country, product);
 
-  const attempt = async (prompt: string): Promise<MarketResearchReport> => {
-    const resultText = await runClaudeOnce(prompt);
-    const jsonText = extractJsonObject(resultText);
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(jsonText);
-    } catch (e) {
+  const attempt = async (prompt: string): Promise<ResearchFindingsBatch> => {
+    const resultText = await runClaudeOnce(prompt, /* allowWebSearch */ true);
+    const parsed = parseJsonOrThrow(resultText, "Research pass");
+    const problems = validateFindingsBatch(parsed);
+    if (problems.length > 0) {
       throw new HeadlessClaudeError(
-        `Claude's response was not valid JSON: ${(e as Error).message}. Raw response (truncated): ${resultText.slice(0, 1000)}`
+        `Research findings didn't match the expected shape: ${problems.join("; ")}`
       );
     }
+    return normalizeFindingsBatch(parsed, country, product);
+  };
+
+  try {
+    return await attempt(basePrompt);
+  } catch (firstError) {
+    try {
+      return await attempt(basePrompt + FINDINGS_JSON_ONLY_REMINDER);
+    } catch (secondError) {
+      throw new HeadlessClaudeError(
+        `Research pass failed after one retry. First attempt: ${(firstError as Error).message}. Retry: ${(secondError as Error).message}`
+      );
+    }
+  }
+}
+
+/**
+ * PASS 2 — writing. Runs the no-tools writing pass over a findings batch and
+ * returns a validated report. Because this pass has no web access, it cannot
+ * introduce a fact that isn't in the batch. Carries the research pass's honest
+ * gaps list through onto the report. Retries once on parse/validate failure.
+ */
+export async function writeReportFromFindings(
+  country: string,
+  product: string,
+  batch: ResearchFindingsBatch
+): Promise<MarketResearchReport> {
+  const findingsJson = JSON.stringify(
+    { findings: batch.findings, gaps: batch.gaps },
+    null,
+    2
+  );
+  const basePrompt = buildWritingPass(country, product, findingsJson);
+
+  const attempt = async (prompt: string): Promise<MarketResearchReport> => {
+    const resultText = await runClaudeOnce(prompt, /* allowWebSearch */ false);
+    const parsed = parseJsonOrThrow(resultText, "Writing pass");
     const problems = validateReport(parsed);
     if (problems.length > 0) {
       throw new HeadlessClaudeError(
-        `Claude's response was JSON but didn't match the expected report shape: ${problems.join("; ")}`
+        `Report didn't match the expected shape: ${problems.join("; ")}`
       );
     }
-    return parsed as MarketResearchReport;
+    const report = parsed as MarketResearchReport;
+    // Ensure the honest gaps list survives even if the writing pass dropped it.
+    if (!Array.isArray(report.gaps) || report.gaps.length === 0) {
+      report.gaps = batch.gaps;
+    }
+    return report;
   };
 
   try {
@@ -173,8 +240,23 @@ export async function generateResearchReport(
       return await attempt(basePrompt + JSON_ONLY_REMINDER);
     } catch (secondError) {
       throw new HeadlessClaudeError(
-        `Report generation failed after one retry. First attempt: ${(firstError as Error).message}. Retry: ${(secondError as Error).message}`
+        `Writing pass failed after one retry. First attempt: ${(firstError as Error).message}. Retry: ${(secondError as Error).message}`
       );
     }
   }
+}
+
+/**
+ * Full two-pass pipeline: research (web search → source-tagged findings) then
+ * writing (findings → report, no web access). Splitting the two means the
+ * report can only be built from evidence that was explicitly collected and
+ * tagged first — nothing in the final report exists without a finding behind
+ * it. Throws HeadlessClaudeError on hard failure rather than fabricating.
+ */
+export async function generateResearchReport(
+  country: string,
+  product: string
+): Promise<MarketResearchReport> {
+  const findings = await collectResearchFindings(country, product);
+  return writeReportFromFindings(country, product, findings);
 }

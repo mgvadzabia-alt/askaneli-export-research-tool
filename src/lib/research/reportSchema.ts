@@ -131,6 +131,13 @@ export interface ReportMeta {
 export interface MarketResearchReport {
   meta: ReportMeta;
   executiveSummary: string[];
+  /**
+   * Topics the research pass could not find usable data for. Surfaced in the
+   * report as an honest gaps list instead of being filled with a guess.
+   * Optional for backward compatibility with reports generated before the
+   * two-pass pipeline existed.
+   */
+  gaps?: string[];
   marketSizeStructure: MarketSizeStructure;
   regulatoryTrade: RegulatoryTrade;
   distributionLandscape: DistributionLandscape;

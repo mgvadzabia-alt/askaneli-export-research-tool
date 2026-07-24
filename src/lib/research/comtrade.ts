@@ -179,14 +179,24 @@ function recordsToFindings(
   partnerName: string,
   queryUrl: string
 ): Omit<ResearchFinding, "id">[] {
-  const clean = records
+  const mapped = records
     .map((r) => ({
       year: r.refYear,
       value: r.primaryValue ?? r.fobvalue ?? 0,
       kg: r.netWgt ?? r.qty ?? 0,
     }))
-    .filter((r) => r.year && (r.value > 0 || r.kg > 0))
-    .sort((a, b) => a.year - b.year);
+    .filter((r) => r.year && (r.value > 0 || r.kg > 0));
+
+  // Comtrade can return more than one record for the same year (sub-aggregations
+  // by quantity unit / customs regime). Keep a single record per year — the one
+  // with the largest value, which is the top-level aggregate — so we don't emit
+  // duplicate per-year findings or compute a bogus trend from two same-year rows.
+  const byYear = new Map<number, { year: number; value: number; kg: number }>();
+  for (const r of mapped) {
+    const existing = byYear.get(r.year);
+    if (!existing || r.value > existing.value) byYear.set(r.year, r);
+  }
+  const clean = [...byYear.values()].sort((a, b) => a.year - b.year);
 
   if (clean.length === 0) return [];
 

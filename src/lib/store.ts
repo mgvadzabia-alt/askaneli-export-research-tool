@@ -67,6 +67,43 @@ export async function getReportEntry(id: string): Promise<ReportIndexEntry | nul
   return entries.find((e) => e.id === id) ?? null;
 }
 
+/**
+ * Finds the most recent successful report for the same country + product +
+ * language, generated within the last `maxAgeDays`. Used to offer a cached
+ * report instead of spending ~15 minutes re-researching an identical request.
+ *
+ * We only ever OFFER this (the caller decides whether to reuse it) and we bound
+ * it by age, because market research goes stale — silently returning a months-
+ * old report would be worse than doing the work again. Matching is
+ * case-insensitive and trims whitespace so "Poland" and " poland " collide.
+ */
+export async function findRecentReport(
+  country: string,
+  product: string,
+  language: ReportLanguage,
+  maxAgeDays: number
+): Promise<ReportIndexEntry | null> {
+  const entries = await readIndex();
+  const normalize = (s: string) => s.trim().toLowerCase();
+  const wantCountry = normalize(country);
+  const wantProduct = normalize(product);
+  const cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;
+
+  const matches = entries.filter(
+    (e) =>
+      e.status === "done" &&
+      normalize(e.country) === wantCountry &&
+      normalize(e.product) === wantProduct &&
+      // Absent language on older reports means English.
+      (e.language ?? "en") === language &&
+      new Date(e.createdAt).getTime() >= cutoff
+  );
+  if (matches.length === 0) return null;
+
+  // Most recent match wins.
+  return matches.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+}
+
 export async function getReportData(id: string): Promise<MarketResearchReport | null> {
   try {
     const raw = await readFile(path.join(REPORTS_DIR, `${id}.json`), "utf-8");

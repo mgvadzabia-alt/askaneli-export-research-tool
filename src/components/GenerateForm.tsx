@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatDateTime } from "@/lib/format";
 
 export function GenerateForm() {
   const router = useRouter();
@@ -10,15 +11,15 @@ export function GenerateForm() {
   const [language, setLanguage] = useState<"en" | "ka">("en");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Set when an identical, recent report already exists; lets the user open it
+  // instead of waiting ~15 minutes for a duplicate.
+  const [cacheHit, setCacheHit] = useState<{ id: string; createdAt: string } | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!country.trim() || !product.trim()) {
-      setError("Please enter both a country/market and a product/SKU.");
-      return;
-    }
+  /** Kicks off a fresh report and navigates to it. */
+  async function startGeneration() {
     setSubmitting(true);
     setError(null);
+    setCacheHit(null);
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -35,6 +36,38 @@ export function GenerateForm() {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setSubmitting(false);
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!country.trim() || !product.trim()) {
+      setError("Please enter both a country/market and a product/SKU.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    setCacheHit(null);
+    // Check for an identical recent report before spending 15 minutes.
+    try {
+      const res = await fetch("/api/check-cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ country: country.trim(), product: product.trim(), language }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        cached?: boolean;
+        id?: string;
+        createdAt?: string;
+      };
+      if (data.cached && data.id && data.createdAt) {
+        setCacheHit({ id: data.id, createdAt: data.createdAt });
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      // If the cache check itself fails, fall through to generating normally.
+    }
+    await startGeneration();
   }
 
   return (
@@ -101,6 +134,35 @@ export function GenerateForm() {
           final report is written in.
         </p>
       </div>
+
+      {cacheHit && (
+        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm">
+          <p className="font-medium text-blue-900">
+            A recent report for this exact market already exists
+          </p>
+          <p className="mt-1 text-blue-800">
+            Generated {formatDateTime(cacheHit.createdAt)}. Open it instead of waiting ~15
+            minutes for a duplicate, or generate a fresh one anyway.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => router.push(`/reports/${cacheHit.id}`)}
+              className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            >
+              Open existing report
+            </button>
+            <button
+              type="button"
+              onClick={startGeneration}
+              disabled={submitting}
+              className="inline-flex items-center rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Generate fresh report
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 

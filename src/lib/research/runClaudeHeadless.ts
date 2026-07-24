@@ -9,8 +9,10 @@ import { validateReport, type MarketResearchReport } from "./reportSchema";
 import {
   normalizeFindingsBatch,
   validateFindingsBatch,
+  type ResearchFinding,
   type ResearchFindingsBatch,
 } from "./findingsSchema";
+import { fetchTradeFlowFindings } from "./comtrade";
 
 /**
  * Shape of the JSON envelope printed by `claude -p ... --output-format json`,
@@ -171,6 +173,12 @@ export async function collectResearchFindings(
   country: string,
   product: string
 ): Promise<ResearchFindingsBatch> {
+  // Pull official trade-flow data FIRST, so the single most decisive metric
+  // (how much Georgia already exports to this market) enters as pre-verified
+  // hard data rather than a web-search estimate. Best-effort: never blocks a
+  // report if Comtrade is unavailable.
+  const tradeFlowFindings = await fetchTradeFlowFindings(country);
+
   const basePrompt = buildResearchPass(country, product);
 
   const attempt = async (prompt: string): Promise<ResearchFindingsBatch> => {
@@ -185,17 +193,43 @@ export async function collectResearchFindings(
     return normalizeFindingsBatch(parsed, country, product);
   };
 
-  try {
-    return await attempt(basePrompt);
-  } catch (firstError) {
+  const runWithRetry = async (): Promise<ResearchFindingsBatch> => {
     try {
-      return await attempt(basePrompt + FINDINGS_JSON_ONLY_REMINDER);
-    } catch (secondError) {
-      throw new HeadlessClaudeError(
-        `Research pass failed after one retry. First attempt: ${(firstError as Error).message}. Retry: ${(secondError as Error).message}`
-      );
+      return await attempt(basePrompt);
+    } catch (firstError) {
+      try {
+        return await attempt(basePrompt + FINDINGS_JSON_ONLY_REMINDER);
+      } catch (secondError) {
+        throw new HeadlessClaudeError(
+          `Research pass failed after one retry. First attempt: ${(firstError as Error).message}. Retry: ${(secondError as Error).message}`
+        );
+      }
     }
-  }
+  };
+
+  const batch = await runWithRetry();
+  return prependTradeFlowFindings(batch, tradeFlowFindings);
+}
+
+/**
+ * Prepends the official Comtrade findings to the model's own findings and
+ * re-numbers the whole batch so ids stay sequential (the writing pass cites
+ * by source position, but keeping ids contiguous avoids confusion). Trade-flow
+ * data comes first because it's the most decisive, pre-verified evidence.
+ */
+function prependTradeFlowFindings(
+  batch: ResearchFindingsBatch,
+  tradeFlow: Omit<ResearchFinding, "id">[]
+): ResearchFindingsBatch {
+  if (tradeFlow.length === 0) return batch;
+  const stripId = (f: ResearchFinding): Omit<ResearchFinding, "id"> => {
+    const { id, ...rest } = f;
+    void id;
+    return rest;
+  };
+  const merged = [...tradeFlow, ...batch.findings.map(stripId)];
+  const renumbered: ResearchFinding[] = merged.map((f, i) => ({ ...f, id: i + 1 }));
+  return { ...batch, findings: renumbered };
 }
 
 /**

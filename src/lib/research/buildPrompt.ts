@@ -214,6 +214,13 @@ is RESEARCH — do NOT write a report, narrative, or summary yet.
 
 ${buildBrandBibleContext(country)}
 
+Note: official UN Comtrade trade-flow figures for Georgia's wine and spirits
+exports to this market may be added to the findings automatically after this
+step. Treat such official trade data as the most decisive, hard evidence and
+focus your own web research on explaining and contextualizing it (why the
+trend, who the buyers are, what's driving it) rather than re-deriving the raw
+export volumes yourself.
+
 Use web search extensively. For every relevant fact you find, record it as a
 separate finding tied to the single source it came from. Cover these topics:
 market size & structure, regulatory & trade requirements (duties, excise,

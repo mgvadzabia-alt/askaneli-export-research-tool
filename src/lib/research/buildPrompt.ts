@@ -1,3 +1,5 @@
+import { buildBrandBibleContext } from "./brandBible";
+
 /**
  * Builds the single research prompt sent to Claude Code headless for a given
  * country + product. Every rule from brief.txt is baked in here, plus the
@@ -91,6 +93,8 @@ export push. Research the market for the following, using web search:
 - Target country/market: ${country}
 - Product/SKU: ${product} (a Georgian wine or spirits product)
 
+${buildBrandBibleContext(country)}
+
 RESEARCH RULES (must follow all of these):
 1. Never fabricate statistics. If exact data is not available, give a clearly-labeled
    reasoned estimate instead of inventing a number.
@@ -111,6 +115,13 @@ RESEARCH RULES (must follow all of these):
 8. If, after genuine research effort, a whole section has no usable data (e.g. a very
    small or unusual market), say so plainly in that section's narrative instead of
    inventing content.
+9. Never list one of Askaneli's own sub-brands (see COMPANY REFERENCE above) as a
+   third-party competitor — recognize them as Askaneli-owned even if they appear
+   in-market without an obvious link to the "Askaneli" name.
+10. Never plot or state Askaneli's FCA cost-reference price (see COMPANY REFERENCE
+    above) as if it were a retail/shelf price. If Askaneli's real in-market retail
+    price cannot be found, report it as not found rather than deriving it from the
+    cost reference.
 
 REPORT SECTIONS (the JSON keys below map 1:1 to these, in this order):
 - Executive summary: 3-5 bullet points, single most important takeaway first.

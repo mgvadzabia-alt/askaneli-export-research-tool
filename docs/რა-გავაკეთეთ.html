@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Askaneli Research Tool — რა გავაკეთეთ</title>
+<style>
+  :root {
+    --ink: #1a2b1a;
+    --muted: #5c6b5c;
+    --line: #e2e8e2;
+    --bg: #f6f8f6;
+    --card: #ffffff;
+    --green: #1f7a3d;
+    --green-soft: #e8f5ec;
+    --amber: #b45309;
+    --amber-soft: #fef3e2;
+    --blue: #1d4ed8;
+    --blue-soft: #eaf0ff;
+    --shadow: 0 1px 3px rgba(20,40,20,.06), 0 6px 20px rgba(20,40,20,.05);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", "Noto Sans Georgian", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  header.hero {
+    text-align: center;
+    padding: 40px 28px;
+    background: linear-gradient(135deg, #1f7a3d 0%, #2f9d52 100%);
+    color: #fff;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: -.3px; }
+  header.hero p { margin: 0; opacity: .92; font-size: 16px; }
+  .hero-badge {
+    display: inline-block; margin-bottom: 16px; padding: 6px 14px;
+    background: rgba(255,255,255,.18); border-radius: 999px;
+    font-size: 13px; font-weight: 600; letter-spacing: .3px;
+  }
+
+  .intro {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 24px 26px; margin: 16px 0 8px;
+    box-shadow: var(--shadow);
+  }
+  .intro h2 { margin: 0 0 8px; font-size: 18px; }
+  .intro p { margin: 0; color: var(--muted); }
+
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 8px; }
+  .stat {
+    flex: 1 1 150px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px; text-align: center; box-shadow: var(--shadow);
+  }
+  .stat .n { font-size: 28px; font-weight: 800; color: var(--green); }
+  .stat .l { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .section-title {
+    margin: 40px 0 4px; font-size: 22px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .dot {
+    width: 30px; height: 30px; border-radius: 8px; display: inline-flex;
+    align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+  }
+  .section-sub { margin: 0 0 18px; color: var(--muted); font-size: 15px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 22px 24px; margin-bottom: 14px; box-shadow: var(--shadow);
+  }
+  .card h3 { margin: 0 0 12px; font-size: 17px; display: flex; align-items: center; gap: 9px; }
+  .card h3 .ico {
+    width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .row { margin: 10px 0; }
+  .row .k {
+    display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4px; padding: 2px 9px; border-radius: 6px; margin-bottom: 4px;
+  }
+  .k.problem { background: var(--amber-soft); color: var(--amber); }
+  .k.did { background: var(--green-soft); color: var(--green); }
+  .k.why { background: var(--blue-soft); color: var(--blue); }
+  .row p { margin: 3px 0 0; }
+
+  .tag-green { background: var(--green-soft); }
+  .tag-green .ico { background: var(--green); color:#fff; }
+  .tag-blue .ico { background: var(--blue); color:#fff; }
+  .tag-amber .ico { background: var(--amber); color:#fff; }
+
+  footer {
+    margin-top: 48px; text-align: center; color: var(--muted); font-size: 14px;
+    border-top: 1px solid var(--line); padding-top: 24px;
+  }
+  footer a { color: var(--green); font-weight: 600; text-decoration: none; }
+  .pill {
+    display:inline-block; background: var(--green-soft); color: var(--green);
+    padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-badge">Askaneli Export Research Tool</div>
+    <h1>რა გავაკეთეთ — მარტივად ახსნილი</h1>
+    <p>შენი აგენტის ყველა გაუმჯობესება, ადამიანურ ენაზე</p>
+  </header>
+
+  <div class="intro">
+    <h2>ორიოდ სიტყვით</h2>
+    <p>ეს არის ხელსაწყო, რომელიც Askaneli-სთვის ავტომატურად ამზადებს ბაზრის კვლევის რეპორტს:
+    წერ ქვეყანას და პროდუქტს, ის კი ინტერნეტში იკვლევს და გაძლევს სრულ, წყაროებით გამყარებულ
+    ანალიზს ექსპორტისთვის. ქვემოთ ნახავ, თითოეული გაუმჯობესება <b>რა პრობლემას</b> აგვარებდა,
+    <b>რა გავაკეთეთ</b> და <b>რატომ არის ეს მნიშვნელოვანი</b> შენთვის.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">18</div><div class="l">ცალკე გაუმჯობესება</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">გასწორებული ხარვეზი</div></div>
+    <div class="stat"><div class="n">100%</div><div class="l">GitHub-ზე შენახული</div></div>
+  </div>
+
+  <!-- ============ ჯგუფი 1: სანდოობა ============ -->
+  <div class="section-title">
+    <span class="dot" style="background:var(--green-soft);color:var(--green)">🎯</span>
+    სანდოობა — რომ რეპორტს დაენდო
+  </div>
+  <p class="section-sub">ეს ჯგუფი ყველაზე მნიშვნელოვანია: რომ ინფორმაცია იყოს ზუსტი და შემოწმებადი.</p>
+
+  <div class="card tag-green">
+    <h3><span class="ico">1</span> კვლევა და წერა გავმიჯნეთ</h3>
+    <div class="row"><span class="k problem">პრობლემა</span><p>ადრე ერთი და იგივე პროგრამა ერთდროულად იკვლევდა და წერდა — შედეგად შეეძლო ფაქტების „მოგონება".</p></div>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ორ ეტაპად დავყავით: ჯერ იკვლევს და აგროვებს ფაქტებს წყაროებით, მერე მხოლოდ ამ ფაქტებიდან წერს რეპორტს — ინტერნეტის ხელახლა გამოყენების გარეშე.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>ახლა რეპორტში ვერაფერი მოხვდება, რასაც რეალური წყარო არ ადასტურებს.</p></div>
+  </div>
+
+  <div class="card tag-green">
+    <h3><span class="ico">2</span> ციტატები და სანდოობის ნიშნები</h3>
+    <div class="row"><span class="k problem">პრობლემა</span><p>ვერ ხვდებოდი, კონკრეტული ციფრი საიდან მოდიოდა და რამდენად სანდო იყო.</p></div>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ტექსტში ყოველ ფაქტს გვერდით უჩნდება პატარა ნომერი <b>[3]</b>, რომელზეც დაჭერით პირდაპირ წყაროზე გადახვალ. თითო სექციას აქვს „High / Medium / Low" სანდოობის ნიშანი.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>ერთი შეხედვით ხედავ, რომელ ნაწილს ენდო და რომელი გადაამოწმო.</p></div>
+  </div>
+
+  <div class="card tag-green">
+    <h3><span class="ico">3</span> წყაროების ლინკებს ვამოწმებთ</h3>
+    <div class="row"><span class="k problem">პრობლემა</span><p>რეპორტში მითითებული ლინკი შეიძლება მკვდარი ან გამოგონილი ყოფილიყო.</p></div>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ყოველი რეპორტის შემდეგ ავტომატურად ვამოწმებთ თითო ლინკს და ვნიშნავთ: 🟢 მუშაობს / 🔴 მკვდარია.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>მაშინვე ჩანს, რომელი წყარო გაიხსნება და რომელი არა.</p></div>
+  </div>
+
+  <div class="card tag-green">
+    <h3><span class="ico">4</span> რეალური სავაჭრო მონაცემები (UN Comtrade)</h3>
+    <div class="row"><span class="k problem">პრობლემა</span><p>ბაზრის ზომა ხშირად მოდელის ვარაუდი იყო, არა ფაქტი.</p></div>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ვუკავშირდებით ოფიციალურ საბაჟო სტატისტიკას და ვიღებთ რეალურ ციფრს — რამდენად ბევრს ყიდის საქართველო ღვინოსა და სპირტს ამ ქვეყანაში (ღირებულება + ტონა + ტრენდი).</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>ყველაზე მნიშვნელოვანი ციფრი ახლა ოფიციალური ფაქტია, არა შეფასება.</p></div>
+  </div>
+
+  <div class="card tag-green">
+    <h3><span class="ico">5</span> გამოტოვებული მონაცემი გულწრფელად ჩანს</h3>
+    <div class="row"><span class="k problem">პრობლემა</span><p>თუ რამეზე მონაცემი არ იყო, პროგრამა შეიძლება „მოეგონა".</p></div>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>თუ რომელიმე თემაზე სანდო წყარო ვერ მოიძებნა, რეპორტი ცხადად წერს: „ეს ვერ მოიძებნა" — ვარაუდის ნაცვლად.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>ცხადი ხარვეზი უკეთესია, ვიდრე დამალული გამოგონება.</p></div>
+  </div>
+
+  <!-- ============ ჯგუფი 2: თვალსაჩინოება ============ -->
+  <div class="section-title">
+    <span class="dot" style="background:var(--blue-soft);color:var(--blue)">👁️</span>
+    თვალსაჩინოება — მთავარი წინ წამოწეული
+  </div>
+  <p class="section-sub">მნიშვნელოვანი ინფორმაცია რომ ერთ შეხედვით დაინახო, ბოლოში დამალვის ნაცვლად.</p>
+
+  <div class="card tag-blue">
+    <h3><span class="ico">A</span> სანდოობის შეჯამება (ზემოთ)</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>რეპორტის თავში ერთი ზოლი: რამდენი წყარო, რამდენი ოფიციალური მონაცემი, სანდოობის განაწილება და <b>წითელი გაფრთხილება</b>, თუ მკვდარი ლინკებია.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>მთელ რეპორტს აფასებ, სანამ წაიკითხავ.</p></div>
+  </div>
+
+  <div class="card tag-blue">
+    <h3><span class="ico">B</span> სავაჭრო მონაცემის ბლოკი (ზემოთ)</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ოფიციალური Comtrade ციფრი ცალკე, თვალსაჩინო მწვანე ბარათად — 🇬🇪→ბაზარი, ღვინო/სპირტი, ღირებულება და ზრდის %.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>ყველაზე ღირებული ფაქტი აღარ იკარგება ტექსტში.</p></div>
+  </div>
+
+  <div class="card tag-blue">
+    <h3><span class="ico">D</span> მთავარი ციფრები (ბარათებად)</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ბაზრის ზომა, ზრდა, ჩვენი ხილვადობა, ფასები — დიდ ბარათებად რეზიუმეს ქვეშ.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>რაც ყველაზე გჭირდება, ის თვალწინ არის.</p></div>
+  </div>
+
+  <!-- ============ ჯგუფი 3: მოხერხებულობა ============ -->
+  <div class="section-title">
+    <span class="dot" style="background:var(--amber-soft);color:var(--amber)">🛠️</span>
+    მოხერხებულობა — ყოველდღიური გამოყენება
+  </div>
+  <p class="section-sub">რომ ხელსაწყო კომფორტული და უსაფრთხო იყოს გამოსაყენებლად.</p>
+
+  <div class="card tag-amber">
+    <h3><span class="ico">📅</span> რეპორტის სიახლის ნიშანი</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ყოველი რეპორტის თავზე: 🟢 ახალი / 🟡 რამდენიმე თვის / 🔴 ძველია — განაახლე.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>ძველი კვლევა ჩუმად ვეღარ შეგცდომებს.</p></div>
+  </div>
+
+  <div class="card tag-amber">
+    <h3><span class="ico">📄</span> PDF-ად გადმოწერა</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ღილაკი „Download PDF" — რეპორტს გადმოწერ და გაუგზავნი ვისაც გინდა.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>მარტივი გაზიარება კოლეგებთან.</p></div>
+  </div>
+
+  <div class="card tag-amber">
+    <h3><span class="ico">🇬🇪</span> ქართული ენა</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ფორმაზე გადამრთველი — რეპორტი ქართულად ან ინგლისურად. კვლევა მაინც საერთაშორისო წყაროებზე ხდება.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>რეპორტი შენს ენაზე, საუკეთესო წყაროებით.</p></div>
+  </div>
+
+  <div class="card tag-amber">
+    <h3><span class="ico">⚡</span> ჭკვიანი დამახსოვრება</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>თუ იმავე ბაზარს ბოლო 30 დღეში უკვე იკვლიე, გთავაზობს არსებულს — 15 წუთის ლოდინის ნაცვლად.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>დროს ზოგავს, მაგრამ ძველს არასდროს ახვევს თავს — არჩევანი შენია.</p></div>
+  </div>
+
+  <div class="card tag-amber">
+    <h3><span class="ico">🔐</span> ცალკე ანგარიშები (login)</h3>
+    <div class="row"><span class="k did">გავაკეთეთ</span><p>ახლა ხელსაწყოს login სჭირდება — email + პაროლი. პაროლი უსაფრთხოდ, დაშიფრულად ინახება.</p></div>
+    <div class="row"><span class="k why">რატომ</span><p>რამდენიმე ადამიანს შეუძლია საკუთარი ანგარიშით შესვლა, უცხოს კი — არა.</p></div>
+  </div>
+
+  <!-- ============ ჯგუფი 4: ხარვეზები ============ -->
+  <div class="section-title">
+    <span class="dot" style="background:#fdecec;color:#c0392b">🔧</span>
+    გასწორებული ხარვეზები
+  </div>
+  <p class="section-sub">ჩუმი პრობლემები, რომლებმაც შეიძლება მონაცემი დაეზიანებინა.</p>
+
+  <div class="card">
+    <div class="row"><p>✅ <b>ცოცხალი ლინკი მკვდრად აღარ ინიშნება</b> — შემოწმების ერთი ტექნიკური შეცდომა გავასწორეთ.</p></div>
+    <div class="row"><p>✅ <b>რეპორტი ისტორიიდან აღარ იკარგება</b> — ორი რეპორტი ერთდროულად რომ კეთდებოდა, ერთი შეიძლება გამქრალიყო; გავასწორეთ.</p></div>
+    <div class="row"><p>✅ <b>სავაჭრო ციფრები აღარ ორმაგდება</b> — ოფიციალური მონაცემის დამუშავებისას ერთი წელი ორჯერ რომ არ ჩაითვალოს.</p></div>
+  </div>
+
+  <footer>
+    <p>ყველა ცვლილება უსაფრთხოდ შენახულია და ატვირთულია აქ:</p>
+    <p><a href="https://github.com/mgvadzabia-alt/askaneli-export-research-tool">github.com/mgvadzabia-alt/askaneli-export-research-tool</a></p>
+    <div class="pill">18 გაუმჯობესება · 24 ივლისი 2026</div>
+  </footer>
+
+</div>
+</body>
+</html>

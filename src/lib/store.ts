@@ -11,6 +11,30 @@ async function ensureDirs(): Promise<void> {
   await mkdir(REPORTS_DIR, { recursive: true });
 }
 
+/**
+ * Serializes every read-modify-write of the index file. Reports are generated
+ * as fire-and-forget background tasks, so two of them can finish at nearly the
+ * same moment; without this lock both would readIndex() the same snapshot,
+ * each append its own change, and the later writeIndex() would clobber the
+ * other's entry — silently dropping a report from history. Chaining each
+ * critical section onto a single promise forces them to run one at a time.
+ *
+ * This guards against concurrency within one Node process (the only way this
+ * single-process local tool runs); it is not a cross-process file lock.
+ */
+let indexLock: Promise<unknown> = Promise.resolve();
+
+function withIndexLock<T>(fn: () => Promise<T>): Promise<T> {
+  const run = indexLock.then(fn, fn);
+  // Keep the chain alive even if fn rejects, but don't let the lock itself
+  // reject (which would reject every future waiter).
+  indexLock = run.then(
+    () => undefined,
+    () => undefined
+  );
+  return run;
+}
+
 async function readIndex(): Promise<ReportIndexEntry[]> {
   try {
     const raw = await readFile(INDEX_PATH, "utf-8");
@@ -55,40 +79,46 @@ export async function getReportData(id: string): Promise<MarketResearchReport | 
 export async function createRunningReport(country: string, product: string): Promise<string> {
   const id = randomUUID();
   const now = new Date().toISOString();
-  const entries = await readIndex();
-  entries.push({
-    id,
-    country,
-    product,
-    status: "running",
-    createdAt: now,
-    updatedAt: now,
+  await withIndexLock(async () => {
+    const entries = await readIndex();
+    entries.push({
+      id,
+      country,
+      product,
+      status: "running",
+      createdAt: now,
+      updatedAt: now,
+    });
+    await writeIndex(entries);
   });
-  await writeIndex(entries);
   return id;
 }
 
 export async function markReportDone(id: string, report: MarketResearchReport): Promise<void> {
   await ensureDirs();
   await writeFile(path.join(REPORTS_DIR, `${id}.json`), JSON.stringify(report, null, 2), "utf-8");
-  const entries = await readIndex();
-  const idx = entries.findIndex((e) => e.id === id);
-  if (idx !== -1) {
-    entries[idx] = { ...entries[idx], status: "done", updatedAt: new Date().toISOString() };
-    await writeIndex(entries);
-  }
+  await withIndexLock(async () => {
+    const entries = await readIndex();
+    const idx = entries.findIndex((e) => e.id === id);
+    if (idx !== -1) {
+      entries[idx] = { ...entries[idx], status: "done", updatedAt: new Date().toISOString() };
+      await writeIndex(entries);
+    }
+  });
 }
 
 export async function markReportError(id: string, message: string): Promise<void> {
-  const entries = await readIndex();
-  const idx = entries.findIndex((e) => e.id === id);
-  if (idx !== -1) {
-    entries[idx] = {
-      ...entries[idx],
-      status: "error",
-      updatedAt: new Date().toISOString(),
-      errorMessage: message,
-    };
-    await writeIndex(entries);
-  }
+  await withIndexLock(async () => {
+    const entries = await readIndex();
+    const idx = entries.findIndex((e) => e.id === id);
+    if (idx !== -1) {
+      entries[idx] = {
+        ...entries[idx],
+        status: "error",
+        updatedAt: new Date().toISOString(),
+        errorMessage: message,
+      };
+      await writeIndex(entries);
+    }
+  });
 }

@@ -113,9 +113,3 @@ export async function authenticateUser(
   const valid = await verifyPassword(password, user.passwordHash, user.passwordSalt);
   return valid ? { id: user.id, email: user.email } : null;
 }
-
-/** Convenience: does at least one account exist? (used to steer login vs signup) */
-export async function hasAnyUser(): Promise<boolean> {
-  const users = await readUsers();
-  return users.length > 0;
-}

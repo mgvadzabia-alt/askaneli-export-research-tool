@@ -9,6 +9,7 @@ import { Section, Narrative, FieldGrid } from "@/components/report/Section";
 import { NatureBadge } from "@/components/report/NatureBadge";
 import { ReachabilityBadge } from "@/components/report/ReachabilityBadge";
 import { ConfidenceBadge } from "@/components/report/ConfidenceBadge";
+import { RecommendationsSection } from "@/components/report/RecommendationsSection";
 import {
   ChannelMixChart,
   CompetitorPriceChart,
@@ -89,6 +90,8 @@ async function ReportBody({ id }: { id: string }) {
           ))}
         </ul>
       </Section>
+
+      <RecommendationsSection actions={report.soWhat} />
 
       {report.gaps && report.gaps.length > 0 && (
         <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
@@ -288,24 +291,6 @@ async function ReportBody({ id }: { id: string }) {
             ))}
           </div>
         )}
-      </Section>
-
-      <Section title="“So what” — recommended next actions">
-        <div className="space-y-3">
-          {report.soWhat.map((action, i) => (
-            <div key={i} className="rounded-lg border border-neutral-200 p-4">
-              <p className="text-sm font-medium text-neutral-900">{action.action}</p>
-              <p className="mt-1 text-sm text-neutral-700">
-                <span className="font-medium">Expected impact: </span>
-                {action.expectedImpact}
-              </p>
-              <p className="mt-1 text-sm text-neutral-700">
-                <span className="font-medium">Timeline: </span>
-                {action.timeline}
-              </p>
-            </div>
-          ))}
-        </div>
       </Section>
 
       <Section title="Sources">

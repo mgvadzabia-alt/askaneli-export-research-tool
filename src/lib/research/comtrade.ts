@@ -173,12 +173,6 @@ function tonnes(kg: number): string {
 }
 
 /**
- * Turns Comtrade records for one commodity into human-readable findings: one
- * per year with the export value + weight, plus a trend finding if we have at
- * least two years. Every finding is tagged "hard data" and cites the Comtrade
- * query, since it comes directly from official statistics.
- */
-/**
  * Collapses raw Comtrade records into one clean point per year. Comtrade can
  * return more than one record for the same year (sub-aggregations by quantity
  * unit / customs regime); we keep the one with the largest value, which is the
@@ -201,6 +195,12 @@ function dedupeByYear(records: ComtradeRecord[]): TradeFlowYearPoint[] {
   return [...byYear.values()].sort((a, b) => a.year - b.year);
 }
 
+/**
+ * Turns per-year points for one commodity into human-readable findings: one
+ * per year with the export value + weight, plus a trend finding if we have at
+ * least two years. Every finding is tagged "hard data" and cites the Comtrade
+ * query, since it comes directly from official statistics.
+ */
 function recordsToFindings(
   clean: TradeFlowYearPoint[],
   commodityLabel: string,

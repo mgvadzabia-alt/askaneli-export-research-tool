@@ -5,6 +5,14 @@
 export type SourceNature = "hard data" | "estimate" | "industry consensus";
 
 /**
+ * Language the report narrative is written in. Research is always done against
+ * (mostly English) sources; only the final written report is localized. "en"
+ * is the default and the behaviour for every report generated before this
+ * existed.
+ */
+export type ReportLanguage = "en" | "ka";
+
+/**
  * Per-section confidence rollup (memo rec #2). Reflects how well-sourced a
  * section is: "high" = backed mostly by independent hard-data findings,
  * "medium" = a mix / some estimates, "low" = thin or mostly the model's own
@@ -188,6 +196,8 @@ export interface ReportIndexEntry {
   createdAt: string;
   updatedAt: string;
   errorMessage?: string;
+  /** Language the report was written in. Absent on older reports = English. */
+  language?: ReportLanguage;
 }
 
 function isNonEmptyString(v: unknown): v is string {

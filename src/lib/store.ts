@@ -1,7 +1,11 @@
 import { randomUUID } from "crypto";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
-import type { MarketResearchReport, ReportIndexEntry } from "./research/reportSchema";
+import type {
+  MarketResearchReport,
+  ReportIndexEntry,
+  ReportLanguage,
+} from "./research/reportSchema";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const REPORTS_DIR = path.join(DATA_DIR, "reports");
@@ -76,7 +80,11 @@ export async function getReportData(id: string): Promise<MarketResearchReport | 
 }
 
 /** Creates a new "running" history entry and returns its id. */
-export async function createRunningReport(country: string, product: string): Promise<string> {
+export async function createRunningReport(
+  country: string,
+  product: string,
+  language: ReportLanguage = "en"
+): Promise<string> {
   const id = randomUUID();
   const now = new Date().toISOString();
   await withIndexLock(async () => {
@@ -88,6 +96,7 @@ export async function createRunningReport(country: string, product: string): Pro
       status: "running",
       createdAt: now,
       updatedAt: now,
+      language,
     });
     await writeIndex(entries);
   });

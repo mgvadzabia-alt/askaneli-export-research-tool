@@ -3,7 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function RetryButton({ country, product }: { country: string; product: string }) {
+export function RetryButton({
+  country,
+  product,
+  language,
+}: {
+  country: string;
+  product: string;
+  language?: "en" | "ka";
+}) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +23,7 @@ export function RetryButton({ country, product }: { country: string; product: st
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country, product }),
+        body: JSON.stringify({ country, product, language: language ?? "en" }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

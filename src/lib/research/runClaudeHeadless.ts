@@ -241,14 +241,15 @@ function prependTradeFlowFindings(
 export async function writeReportFromFindings(
   country: string,
   product: string,
-  batch: ResearchFindingsBatch
+  batch: ResearchFindingsBatch,
+  language: "en" | "ka" = "en"
 ): Promise<MarketResearchReport> {
   const findingsJson = JSON.stringify(
     { findings: batch.findings, gaps: batch.gaps },
     null,
     2
   );
-  const basePrompt = buildWritingPass(country, product, findingsJson);
+  const basePrompt = buildWritingPass(country, product, findingsJson, language);
 
   const attempt = async (prompt: string): Promise<MarketResearchReport> => {
     const resultText = await runClaudeOnce(prompt, /* allowWebSearch */ false);
@@ -289,8 +290,9 @@ export async function writeReportFromFindings(
  */
 export async function generateResearchReport(
   country: string,
-  product: string
+  product: string,
+  language: "en" | "ka" = "en"
 ): Promise<MarketResearchReport> {
   const findings = await collectResearchFindings(country, product);
-  return writeReportFromFindings(country, product, findings);
+  return writeReportFromFindings(country, product, findings, language);
 }

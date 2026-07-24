@@ -269,8 +269,21 @@ export const FINDINGS_JSON_ONLY_REMINDER =
 export function buildWritingPass(
   country: string,
   product: string,
-  findingsJson: string
+  findingsJson: string,
+  language: "en" | "ka" = "en"
 ): string {
+  const languageInstruction =
+    language === "ka"
+      ? `\n\nLANGUAGE: Write ALL human-readable narrative text in the report in
+Georgian (ქართული) — every "narrative" field, the executive summary bullets,
+the recommended actions, and all descriptive strings. Keep proper nouns,
+company/brand names, URLs, currency codes (USD, EUR), HS codes, and the JSON
+keys/enum values themselves (e.g. "high"/"medium"/"low", "hard data") in their
+original form — do NOT translate field names or enum values, only the text a
+human reads. Numbers and units stay as-is. Source labels may stay in their
+original language.`
+      : "";
+
   return `You are a senior export-market research analyst writing the final
 due-diligence report for Askaneli Brothers (Georgian wine and spirits) on the
 market below. You did the research in a previous step; the findings from that
@@ -325,5 +338,5 @@ ${JSON_SHAPE}
 
 Set "meta.generatedAt" to the current date/time in ISO-8601, "meta.country" to
 "${country}", "meta.product" to "${product}", and "meta.model" to the name of the
-model you are running as.`;
+model you are running as.${languageInstruction}`;
 }

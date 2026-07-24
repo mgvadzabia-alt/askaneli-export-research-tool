@@ -67,7 +67,7 @@ export default async function ReportPage({
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-900">
           <p className="font-medium">Report generation failed.</p>
           <p className="mt-1 whitespace-pre-wrap text-red-800">{entry.errorMessage}</p>
-          <RetryButton country={entry.country} product={entry.product} />
+          <RetryButton country={entry.country} product={entry.product} language={entry.language} />
         </div>
       )}
 

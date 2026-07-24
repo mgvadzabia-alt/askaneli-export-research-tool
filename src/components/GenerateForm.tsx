@@ -7,6 +7,7 @@ export function GenerateForm() {
   const router = useRouter();
   const [country, setCountry] = useState("");
   const [product, setProduct] = useState("");
+  const [language, setLanguage] = useState<"en" | "ka">("en");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +23,7 @@ export function GenerateForm() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country: country.trim(), product: product.trim() }),
+        body: JSON.stringify({ country: country.trim(), product: product.trim(), language }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -70,6 +71,35 @@ export function GenerateForm() {
             className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500 disabled:bg-neutral-100"
           />
         </div>
+      </div>
+
+      <div className="mt-4">
+        <span className="block text-sm font-medium text-neutral-700">Report language</span>
+        <div className="mt-1 inline-flex rounded-md border border-neutral-300 p-0.5">
+          {([
+            { value: "en", label: "English" },
+            { value: "ka", label: "ქართული" },
+          ] as const).map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setLanguage(option.value)}
+              disabled={submitting}
+              aria-pressed={language === option.value}
+              className={`rounded px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                language === option.value
+                  ? "bg-neutral-900 text-white"
+                  : "text-neutral-600 hover:bg-neutral-100"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1 text-xs text-neutral-500">
+          Research always uses international sources; this sets the language the
+          final report is written in.
+        </p>
       </div>
 
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}

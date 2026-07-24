@@ -10,6 +10,7 @@ import { NatureBadge } from "@/components/report/NatureBadge";
 import { ReachabilityBadge } from "@/components/report/ReachabilityBadge";
 import { ConfidenceBadge } from "@/components/report/ConfidenceBadge";
 import { RecommendationsSection } from "@/components/report/RecommendationsSection";
+import { ReportAgeBadge } from "@/components/report/ReportAgeBadge";
 import {
   ChannelMixChart,
   CompetitorPriceChart,
@@ -66,12 +67,12 @@ export default async function ReportPage({
         </div>
       )}
 
-      {entry.status === "done" && <ReportBody id={id} />}
+      {entry.status === "done" && <ReportBody id={id} researchedAt={entry.createdAt} />}
     </main>
   );
 }
 
-async function ReportBody({ id }: { id: string }) {
+async function ReportBody({ id, researchedAt }: { id: string; researchedAt: string }) {
   const report = await getReportData(id);
   if (!report) {
     return (
@@ -83,6 +84,12 @@ async function ReportBody({ id }: { id: string }) {
 
   return (
     <div>
+      <div className="mb-6">
+        {/* Use the server-recorded request time, not report.meta.generatedAt,
+            which the model fills in and could get wrong. */}
+        <ReportAgeBadge generatedAt={researchedAt} />
+      </div>
+
       <Section title="Executive summary">
         <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-neutral-700">
           {report.executiveSummary.map((point, i) => (

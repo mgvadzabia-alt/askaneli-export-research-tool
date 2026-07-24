@@ -9,6 +9,16 @@ import { buildBrandBibleContext } from "./brandBible";
 const JSON_SHAPE = `{
   "meta": { "country": string, "product": string, "generatedAt": ISO-8601 string, "model": string },
   "executiveSummary": [string, ...],
+  "gaps": [string, ...],
+  "sectionConfidence": {
+    "marketSizeStructure": "high" | "medium" | "low",
+    "regulatoryTrade": "high" | "medium" | "low",
+    "distributionLandscape": "high" | "medium" | "low",
+    "consumerDemandTrends": "high" | "medium" | "low",
+    "competitiveLandscape": "high" | "medium" | "low",
+    "routeToMarket": "high" | "medium" | "low",
+    "risksBarriers": "high" | "medium" | "low"
+  },
   "marketSizeStructure": {
     "narrative": string,
     "categorySizeVolume": string,
@@ -270,18 +280,28 @@ WRITING RULES:
    Do NOT introduce any statistic, price, company, or claim that is not
    supported by a finding. Analysis and synthesis of the findings is fine and
    expected — inventing new facts is not.
-2. For every specific number or factual claim you write, append an inline
-   citation marker referencing the finding id(s) it rests on, in square
-   brackets, e.g. "category grew ~6% in 2024 [3]" or "[3][7]". A sentence with
-   no marker signals it is your own analysis, not a sourced fact.
-3. Build the "sources" array from the DISTINCT sources referenced by your
-   findings — label, url, date, natureFlag — so the reader can follow each
-   marker back to a real source.
+2. First build the "sources" array from the DISTINCT sources referenced by
+   your findings — label, url, date, natureFlag — deduplicated by URL. The
+   ORDER of this array defines citation numbers: the first source is [1], the
+   second [2], and so on.
+3. Then, for every specific number or factual claim you write, append an
+   inline citation marker in square brackets referencing that claim's
+   position(s) in the "sources" array you just built — NOT the finding id.
+   E.g. if the claim's source is the 3rd entry in "sources", write
+   "category grew ~6% in 2024 [3]"; multiple sources: "[3][7]". A sentence
+   with no marker signals it is your own analysis, not a sourced fact. Every
+   marker number MUST be a valid 1-based index into "sources".
 4. Where the findings genuinely don't cover a section (see the "gaps" list and
    any topic with no findings), say so plainly in that section's narrative
    ("no reliable distributor data was found for this market") rather than
    filling it with a plausible-sounding guess.
 5. Keep it concise and executive: lead with the most decisive point.
+6. For each of the seven analytical sections, set "sectionConfidence" honestly
+   based on the findings behind it: "high" = backed by several independent
+   hard-data findings; "medium" = a mix of hard data and estimates, or a
+   single strong source; "low" = thin evidence, mostly estimates/industry
+   consensus, or largely your own analysis. Carry the research pass's "gaps"
+   list through into the report's "gaps" field.
 
 REPORT SECTIONS (the JSON keys map 1:1 to these):
 - Executive summary: 3-5 bullets, most important takeaway first.

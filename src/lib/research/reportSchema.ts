@@ -5,6 +5,27 @@
 export type SourceNature = "hard data" | "estimate" | "industry consensus";
 
 /**
+ * Per-section confidence rollup (memo rec #2). Reflects how well-sourced a
+ * section is: "high" = backed mostly by independent hard-data findings,
+ * "medium" = a mix / some estimates, "low" = thin or mostly the model's own
+ * analysis. Lets the reader tell at a glance which sections to trust and which
+ * to double-check.
+ */
+export type ConfidenceLevel = "high" | "medium" | "low";
+
+/** Keys of the report sections that carry a confidence rollup. */
+export type ConfidenceSection =
+  | "marketSizeStructure"
+  | "regulatoryTrade"
+  | "distributionLandscape"
+  | "consumerDemandTrends"
+  | "competitiveLandscape"
+  | "routeToMarket"
+  | "risksBarriers";
+
+export type SectionConfidence = Partial<Record<ConfidenceSection, ConfidenceLevel>>;
+
+/**
  * Result of the post-generation URL reachability check (see verifySources.ts).
  * - "reachable": the URL responded with a non-error HTTP status.
  * - "unreachable": the URL failed to resolve, timed out, or returned 4xx/5xx.
@@ -138,6 +159,11 @@ export interface MarketResearchReport {
    * two-pass pipeline existed.
    */
   gaps?: string[];
+  /**
+   * Per-section confidence rollup (high/medium/low). Optional for backward
+   * compatibility with reports generated before this existed.
+   */
+  sectionConfidence?: SectionConfidence;
   marketSizeStructure: MarketSizeStructure;
   regulatoryTrade: RegulatoryTrade;
   distributionLandscape: DistributionLandscape;

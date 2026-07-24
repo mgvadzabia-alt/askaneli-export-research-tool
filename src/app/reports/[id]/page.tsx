@@ -8,6 +8,7 @@ import { RetryButton } from "@/components/report/RetryButton";
 import { Section, Narrative, FieldGrid } from "@/components/report/Section";
 import { NatureBadge } from "@/components/report/NatureBadge";
 import { ReachabilityBadge } from "@/components/report/ReachabilityBadge";
+import { ConfidenceBadge } from "@/components/report/ConfidenceBadge";
 import {
   ChannelMixChart,
   CompetitorPriceChart,
@@ -107,7 +108,10 @@ async function ReportBody({ id }: { id: string }) {
         </div>
       )}
 
-      <Section title="Market size & structure">
+      <Section
+        title="Market size & structure"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.marketSizeStructure} />}
+      >
         <Narrative text={report.marketSizeStructure.narrative} />
         <FieldGrid
           fields={[
@@ -125,7 +129,10 @@ async function ReportBody({ id }: { id: string }) {
         </div>
       </Section>
 
-      <Section title="Regulatory & trade requirements">
+      <Section
+        title="Regulatory & trade requirements"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.regulatoryTrade} />}
+      >
         <Narrative text={report.regulatoryTrade.narrative} />
         <FieldGrid
           fields={[
@@ -141,7 +148,10 @@ async function ReportBody({ id }: { id: string }) {
         />
       </Section>
 
-      <Section title="Distribution landscape">
+      <Section
+        title="Distribution landscape"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.distributionLandscape} />}
+      >
         <Narrative text={report.distributionLandscape.narrative} />
         <FieldGrid
           fields={[
@@ -165,7 +175,10 @@ async function ReportBody({ id }: { id: string }) {
         </div>
       </Section>
 
-      <Section title="Consumer & demand trends">
+      <Section
+        title="Consumer & demand trends"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.consumerDemandTrends} />}
+      >
         <Narrative text={report.consumerDemandTrends.narrative} />
         <FieldGrid
           fields={[
@@ -190,7 +203,10 @@ async function ReportBody({ id }: { id: string }) {
         />
       </Section>
 
-      <Section title="Competitive landscape">
+      <Section
+        title="Competitive landscape"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.competitiveLandscape} />}
+      >
         <Narrative text={report.competitiveLandscape.narrative} />
         <FieldGrid
           fields={[
@@ -205,7 +221,10 @@ async function ReportBody({ id }: { id: string }) {
         </div>
       </Section>
 
-      <Section title="Route to market & entry strategy">
+      <Section
+        title="Route to market & entry strategy"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.routeToMarket} />}
+      >
         <Narrative text={report.routeToMarket.narrative} />
         <FieldGrid
           fields={[
@@ -216,7 +235,10 @@ async function ReportBody({ id }: { id: string }) {
         />
       </Section>
 
-      <Section title="Risks & barriers">
+      <Section
+        title="Risks & barriers"
+        headerRight={<ConfidenceBadge level={report.sectionConfidence?.risksBarriers} />}
+      >
         <FieldGrid
           fields={[
             { label: "Currency", value: report.risksBarriers.currency },
@@ -289,8 +311,13 @@ async function ReportBody({ id }: { id: string }) {
       <Section title="Sources">
         <ul className="divide-y divide-neutral-100">
           {report.sources.map((source, i) => (
-            <li key={i} className="flex flex-wrap items-center justify-between gap-2 py-3">
+            <li
+              key={i}
+              id={`source-${i + 1}`}
+              className="flex scroll-mt-20 flex-wrap items-center justify-between gap-2 py-3 target:bg-amber-50"
+            >
               <div>
+                <span className="mr-2 text-xs font-semibold text-neutral-400">[{i + 1}]</span>
                 {source.url ? (
                   <a
                     href={source.url}

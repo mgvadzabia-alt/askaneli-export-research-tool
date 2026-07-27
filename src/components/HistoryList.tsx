@@ -75,7 +75,10 @@ export function HistoryList({ entries }: { entries: ReportIndexEntry[] }) {
                     <StatusBadge status={entry.status} />
                   </div>
                   <p className="mt-1 text-sm text-neutral-700">{entry.product}</p>
-                  <p className="mt-1 text-xs text-neutral-500">{formatDateTime(entry.createdAt)}</p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    {formatDateTime(entry.createdAt)}
+                    {entry.createdBy && <> · {entry.createdBy.email}</>}
+                  </p>
                 </Link>
                 <button
                   type="button"
@@ -116,7 +119,10 @@ export function HistoryList({ entries }: { entries: ReportIndexEntry[] }) {
                     </td>
                     <td className="px-4 py-3 text-neutral-700">{entry.product}</td>
                     <td className="px-4 py-3 text-neutral-500">
-                      {formatDateTime(entry.createdAt)}
+                      <div>{formatDateTime(entry.createdAt)}</div>
+                      {entry.createdBy && (
+                        <div className="text-xs text-neutral-400">{entry.createdBy.email}</div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={entry.status} />

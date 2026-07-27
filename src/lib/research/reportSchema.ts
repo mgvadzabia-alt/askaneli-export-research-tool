@@ -230,6 +230,12 @@ export interface ReportIndexEntry {
   errorMessage?: string;
   /** Language the report was written in. Absent on older reports = English. */
   language?: ReportLanguage;
+  /**
+   * Who requested this report — shown in history so it's clear whose work is
+   * whose in the shared workspace. Absent on reports generated before this
+   * existed, or if the request somehow had no signed-in user.
+   */
+  createdBy?: { userId: string; email: string };
 }
 
 function isNonEmptyString(v: unknown): v is string {

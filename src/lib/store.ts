@@ -145,7 +145,8 @@ export async function getReportData(id: string): Promise<MarketResearchReport | 
 export async function createRunningReport(
   country: string,
   product: string,
-  language: ReportLanguage = "en"
+  language: ReportLanguage = "en",
+  createdBy?: { userId: string; email: string }
 ): Promise<string> {
   const id = randomUUID();
   const now = new Date().toISOString();
@@ -159,6 +160,7 @@ export async function createRunningReport(
       createdAt: now,
       updatedAt: now,
       language,
+      createdBy,
     });
     await writeIndex(entries);
   });

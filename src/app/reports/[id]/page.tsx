@@ -12,6 +12,7 @@ import { ConfidenceBadge } from "@/components/report/ConfidenceBadge";
 import { RecommendationsSection } from "@/components/report/RecommendationsSection";
 import { ReportAgeBadge } from "@/components/report/ReportAgeBadge";
 import { DownloadPdfButton } from "@/components/report/DownloadPdfButton";
+import { NotifyMeButton } from "@/components/report/NotifyMeButton";
 import { TrustSnapshot } from "@/components/report/TrustSnapshot";
 import { TradeFlowBlock } from "@/components/report/TradeFlowBlock";
 import { KeyNumbersStrip } from "@/components/report/KeyNumbersStrip";
@@ -50,6 +51,7 @@ export default async function ReportPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 print:hidden">
+          {entry.status === "running" && <NotifyMeButton id={id} />}
           {entry.status === "done" && <DownloadPdfButton />}
           <StatusBadge status={entry.status} />
         </div>
@@ -63,7 +65,7 @@ export default async function ReportPage({
             the report from those findings only. This page will update itself automatically once
             the report is ready — you can safely leave and come back from the history list later.
           </p>
-          <ReportPoller id={id} />
+          <ReportPoller id={id} country={entry.country} product={entry.product} />
         </div>
       )}
 

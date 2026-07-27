@@ -35,20 +35,20 @@ export default async function ReportPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <div>
+    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <Link href="/" className="text-sm text-neutral-500 hover:underline print:hidden">
             ← Back to history
           </Link>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">
+          <h1 className="mt-1 break-words text-2xl font-bold tracking-tight text-neutral-900">
             {entry.country} — {entry.product}
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
             Requested {formatDateTime(entry.createdAt)}
           </p>
         </div>
-        <div className="flex items-center gap-3 print:hidden">
+        <div className="flex flex-wrap items-center gap-3 print:hidden">
           {entry.status === "done" && <DownloadPdfButton />}
           <StatusBadge status={entry.status} />
         </div>

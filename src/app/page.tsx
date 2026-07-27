@@ -10,8 +10,8 @@ export default async function HomePage() {
   const [entries, user] = await Promise.all([listReports(), getCurrentUser()]);
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
-      <header className="mb-8 flex items-start justify-between gap-4">
+    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
             Askaneli Export Market Research Tool

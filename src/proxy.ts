@@ -2,18 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/lib/auth/sessionConstants";
 
 /**
- * Route protection. Middleware runs on the edge runtime where Node crypto isn't
+ * Route protection. Runs on the edge runtime where Node crypto isn't
  * available, so here we only do a cheap presence check: no session cookie at
  * all → redirect to /login. The cookie's SIGNATURE is fully verified server-
  * side (getSessionUserId) on the pages themselves, so a forged/tampered cookie
  * still can't access data — it just gets past this first gate and is rejected
- * at the page. This keeps middleware fast and the real check authoritative.
+ * at the page. This keeps the proxy fast and the real check authoritative.
  */
 
 // Paths reachable without a session.
 const PUBLIC_PATHS = ["/login", "/signup"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isPublic = PUBLIC_PATHS.some(

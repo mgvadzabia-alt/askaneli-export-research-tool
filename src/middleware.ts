@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { COOKIE_NAME } from "@/lib/auth/session";
+import { COOKIE_NAME } from "@/lib/auth/sessionConstants";
 
 /**
  * Route protection. Middleware runs on the edge runtime where Node crypto isn't

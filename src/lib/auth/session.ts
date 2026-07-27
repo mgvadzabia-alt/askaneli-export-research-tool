@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
+import { COOKIE_NAME } from "./sessionConstants";
 
 /**
  * Minimal signed-cookie sessions — no external auth library. The cookie holds
@@ -9,7 +10,6 @@ import { cookies } from "next/headers";
  * read it) and SameSite=Lax.
  */
 
-const COOKIE_NAME = "askaneli_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 /**
@@ -68,5 +68,3 @@ export async function getSessionUserId(): Promise<string | null> {
   if (!verifySignature(userId, signature)) return null;
   return userId;
 }
-
-export { COOKIE_NAME };

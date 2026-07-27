@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import path from "path";
 import type {
   MarketResearchReport,
@@ -102,6 +102,31 @@ export async function findRecentReport(
 
   // Most recent match wins.
   return matches.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+}
+
+/**
+ * Deletes a report: removes its index entry and its report JSON file (if any).
+ * Safe to call on a report that has no JSON file yet (e.g. still running or
+ * failed before ever writing one) — that removal is best-effort. Returns
+ * false if no matching index entry existed.
+ */
+export async function deleteReport(id: string): Promise<boolean> {
+  const removed = await withIndexLock(async () => {
+    const entries = await readIndex();
+    const next = entries.filter((e) => e.id !== id);
+    if (next.length === entries.length) return false;
+    await writeIndex(next);
+    return true;
+  });
+
+  if (removed) {
+    try {
+      await rm(path.join(REPORTS_DIR, `${id}.json`));
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+    }
+  }
+  return removed;
 }
 
 export async function getReportData(id: string): Promise<MarketResearchReport | null> {

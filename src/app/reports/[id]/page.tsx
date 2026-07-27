@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getReportData, getReportEntry } from "@/lib/store";
 import { StatusBadge } from "@/components/StatusBadge";
-import { formatDateTime } from "@/lib/format";
+import { formatCountryDisplay, formatDateTime } from "@/lib/format";
 import { ReportPoller } from "@/components/report/ReportPoller";
 import { RetryButton } from "@/components/report/RetryButton";
 import { Section, Narrative, FieldGrid } from "@/components/report/Section";
@@ -42,7 +42,7 @@ export default async function ReportPage({
             ← Back to history
           </Link>
           <h1 className="mt-1 break-words text-2xl font-bold tracking-tight text-neutral-900">
-            {entry.country} — {entry.product}
+            {formatCountryDisplay(entry.country)} — {entry.product}
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
             Requested {formatDateTime(entry.createdAt)}

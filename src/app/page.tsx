@@ -1,13 +1,16 @@
 import { GenerateForm } from "@/components/GenerateForm";
 import { HistoryList } from "@/components/HistoryList";
 import { listReports } from "@/lib/store";
-import { getCurrentUser } from "@/lib/auth/currentUser";
+import { requireUser } from "@/lib/auth/requireUser";
 import { UserMenu } from "@/components/auth/UserMenu";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [entries, user] = await Promise.all([listReports(), getCurrentUser()]);
+  // Authoritative check: redirects to /login if there's no valid session.
+  // Middleware alone only checks cookie presence, not its signature.
+  const user = await requireUser();
+  const entries = await listReports();
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
@@ -21,7 +24,7 @@ export default async function HomePage() {
             revisit past reports below.
           </p>
         </div>
-        {user && <UserMenu email={user.email} />}
+        <UserMenu email={user.email} />
       </header>
 
       <GenerateForm />

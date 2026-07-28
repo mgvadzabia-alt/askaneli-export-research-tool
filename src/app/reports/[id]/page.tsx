@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getReportData, getReportEntry } from "@/lib/store";
+import { requireUser } from "@/lib/auth/requireUser";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatCountryDisplay, formatDateTime } from "@/lib/format";
 import { ReportPoller } from "@/components/report/ReportPoller";
@@ -29,6 +30,10 @@ export default async function ReportPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // Authoritative check: redirects to /login if there's no valid session.
+  // Middleware alone only checks cookie presence, not its signature.
+  await requireUser();
+
   const { id } = await params;
   const entry = await getReportEntry(id);
   if (!entry) {

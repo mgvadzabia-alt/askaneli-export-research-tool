@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findRecentReport } from "@/lib/store";
+import { requireApiUser } from "@/lib/auth/requireUser";
 
 /**
  * Before spending ~15 minutes generating a report, the form asks here whether
@@ -13,6 +14,9 @@ import { findRecentReport } from "@/lib/store";
 const CACHE_MAX_AGE_DAYS = 30;
 
 export async function POST(request: NextRequest) {
+  const authResult = await requireApiUser();
+  if (authResult instanceof NextResponse) return authResult;
+
   let body: unknown;
   try {
     body = await request.json();

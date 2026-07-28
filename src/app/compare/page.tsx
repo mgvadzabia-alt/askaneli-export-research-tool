@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getReportData, getReportEntry } from "@/lib/store";
+import { requireUser } from "@/lib/auth/requireUser";
 import { formatCountryDisplay, formatDateTime } from "@/lib/format";
 import type { MarketResearchReport, ReportIndexEntry } from "@/lib/research/reportSchema";
 
@@ -63,6 +64,10 @@ export default async function ComparePage({
 }: {
   searchParams: Promise<{ ids?: string }>;
 }) {
+  // Authoritative check: redirects to /login if there's no valid session.
+  // Middleware alone only checks cookie presence, not its signature.
+  await requireUser();
+
   const { ids: idsParam } = await searchParams;
   const ids = (idsParam ?? "")
     .split(",")

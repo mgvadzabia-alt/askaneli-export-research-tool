@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRunningReport, markReportDone, markReportError } from "@/lib/store";
 import { generateResearchReport, HeadlessClaudeError } from "@/lib/research/runClaudeHeadless";
 import { verifyReportSources } from "@/lib/research/verifySources";
-import { getCurrentUser } from "@/lib/auth/currentUser";
+import { requireApiUser } from "@/lib/auth/requireUser";
 
 export async function POST(request: NextRequest) {
+  // Requires a real signed-in session: this kicks off a paid, multi-minute
+  // research run, so it must not be reachable with a garbage/forged cookie.
+  const authResult = await requireApiUser();
+  if (authResult instanceof NextResponse) return authResult;
+  const user = authResult;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -28,13 +34,10 @@ export async function POST(request: NextRequest) {
 
   const trimmedCountry = country.trim();
   const trimmedProduct = product.trim();
-  const user = await getCurrentUser();
-  const id = await createRunningReport(
-    trimmedCountry,
-    trimmedProduct,
-    reportLanguage,
-    user ? { userId: user.id, email: user.email } : undefined
-  );
+  const id = await createRunningReport(trimmedCountry, trimmedProduct, reportLanguage, {
+    userId: user.id,
+    email: user.email,
+  });
 
   // Fire-and-forget: the research call can take several minutes, so we return
   // the report id immediately and let the client poll the report page while

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deleteReport, getReportData, getReportEntry } from "@/lib/store";
+import { requireApiUser } from "@/lib/auth/requireUser";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireApiUser();
+  if (authResult instanceof NextResponse) return authResult;
+
   const { id } = await params;
   const entry = await getReportEntry(id);
   if (!entry) {
@@ -18,6 +22,9 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResult = await requireApiUser();
+  if (authResult instanceof NextResponse) return authResult;
+
   const { id } = await params;
   const removed = await deleteReport(id);
   if (!removed) {

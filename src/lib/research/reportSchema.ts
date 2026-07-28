@@ -239,8 +239,8 @@ export interface ReportIndexEntry {
   /**
    * Optional free-text guidance from the requester (e.g. "focus on HoReCa
    * channel", "compare against Moldovan wines specifically"). Fed into both
-   * pipeline passes; never lets the model fabricate facts it doesn't override
-   * the anti-fabrication rules. Absent on reports generated before this existed.
+   * pipeline passes; can steer scope/emphasis but can never override the
+   * anti-fabrication rules. Absent on reports generated before this existed.
    */
   additionalInstructions?: string;
 }

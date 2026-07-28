@@ -24,10 +24,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { country, product, language } = (body ?? {}) as {
+  const { country, product, language, additionalInstructions } = (body ?? {}) as {
     country?: unknown;
     product?: unknown;
     language?: unknown;
+    additionalInstructions?: unknown;
   };
   if (typeof country !== "string" || country.trim().length === 0) {
     return NextResponse.json({ error: "country is required" }, { status: 400 });
@@ -36,12 +37,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "product is required" }, { status: 400 });
   }
   const reportLanguage: "en" | "ka" = language === "ka" ? "ka" : "en";
+  const instructions =
+    typeof additionalInstructions === "string" ? additionalInstructions : undefined;
 
   const match = await findRecentReport(
     country.trim(),
     product.trim(),
     reportLanguage,
-    CACHE_MAX_AGE_DAYS
+    CACHE_MAX_AGE_DAYS,
+    instructions
   );
 
   if (!match) {

@@ -81,12 +81,18 @@ export async function findRecentReport(
   country: string,
   product: string,
   language: ReportLanguage,
-  maxAgeDays: number
+  maxAgeDays: number,
+  additionalInstructions?: string
 ): Promise<ReportIndexEntry | null> {
   const entries = await readIndex();
   const normalize = (s: string) => s.trim().toLowerCase();
   const wantCountry = normalize(country);
   const wantProduct = normalize(product);
+  // Treat absent/empty instructions as equivalent, so a plain request still
+  // matches a plain prior report. But a report generated WITH custom guidance
+  // was researched differently, so it must never be offered as a match for a
+  // request with different (or no) guidance, and vice versa.
+  const wantInstructions = (additionalInstructions ?? "").trim().toLowerCase();
   const cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;
 
   const matches = entries.filter(
@@ -96,6 +102,7 @@ export async function findRecentReport(
       normalize(e.product) === wantProduct &&
       // Absent language on older reports means English.
       (e.language ?? "en") === language &&
+      (e.additionalInstructions ?? "").trim().toLowerCase() === wantInstructions &&
       new Date(e.createdAt).getTime() >= cutoff
   );
   if (matches.length === 0) return null;
@@ -146,7 +153,8 @@ export async function createRunningReport(
   country: string,
   product: string,
   language: ReportLanguage = "en",
-  createdBy?: { userId: string; email: string }
+  createdBy?: { userId: string; email: string },
+  additionalInstructions?: string
 ): Promise<string> {
   const id = randomUUID();
   const now = new Date().toISOString();
@@ -161,6 +169,7 @@ export async function createRunningReport(
       updatedAt: now,
       language,
       createdBy,
+      additionalInstructions,
     });
     await writeIndex(entries);
   });

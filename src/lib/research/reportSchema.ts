@@ -236,6 +236,13 @@ export interface ReportIndexEntry {
    * existed, or if the request somehow had no signed-in user.
    */
   createdBy?: { userId: string; email: string };
+  /**
+   * Optional free-text guidance from the requester (e.g. "focus on HoReCa
+   * channel", "compare against Moldovan wines specifically"). Fed into both
+   * pipeline passes; never lets the model fabricate facts it doesn't override
+   * the anti-fabrication rules. Absent on reports generated before this existed.
+   */
+  additionalInstructions?: string;
 }
 
 function isNonEmptyString(v: unknown): v is string {

@@ -54,6 +54,12 @@ export default async function ReportPage({
             Requested {formatDateTime(entry.createdAt)}
             {entry.createdBy && <> by {entry.createdBy.email}</>}
           </p>
+          {entry.additionalInstructions && (
+            <p className="mt-1 text-sm text-neutral-500">
+              <span className="font-medium text-neutral-600">Additional instructions:</span>{" "}
+              {entry.additionalInstructions}
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-3 print:hidden">
           {entry.status === "running" && <NotifyMeButton id={id} />}
@@ -78,7 +84,12 @@ export default async function ReportPage({
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-900">
           <p className="font-medium">Report generation failed.</p>
           <p className="mt-1 whitespace-pre-wrap text-red-800">{entry.errorMessage}</p>
-          <RetryButton country={entry.country} product={entry.product} language={entry.language} />
+          <RetryButton
+            country={entry.country}
+            product={entry.product}
+            language={entry.language}
+            additionalInstructions={entry.additionalInstructions}
+          />
         </div>
       )}
 

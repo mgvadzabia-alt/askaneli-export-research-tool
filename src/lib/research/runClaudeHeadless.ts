@@ -172,9 +172,10 @@ function parseJsonOrThrow(resultText: string, label: string): unknown {
 export async function collectResearchFindings(
   country: string,
   product: string,
-  tradeFlowFindings: Omit<ResearchFinding, "id">[] = []
+  tradeFlowFindings: Omit<ResearchFinding, "id">[] = [],
+  additionalInstructions?: string
 ): Promise<ResearchFindingsBatch> {
-  const basePrompt = buildResearchPass(country, product);
+  const basePrompt = buildResearchPass(country, product, additionalInstructions);
 
   const attempt = async (prompt: string): Promise<ResearchFindingsBatch> => {
     const resultText = await runClaudeOnce(prompt, /* allowWebSearch */ true);
@@ -237,14 +238,21 @@ export async function writeReportFromFindings(
   country: string,
   product: string,
   batch: ResearchFindingsBatch,
-  language: "en" | "ka" = "en"
+  language: "en" | "ka" = "en",
+  additionalInstructions?: string
 ): Promise<MarketResearchReport> {
   const findingsJson = JSON.stringify(
     { findings: batch.findings, gaps: batch.gaps },
     null,
     2
   );
-  const basePrompt = buildWritingPass(country, product, findingsJson, language);
+  const basePrompt = buildWritingPass(
+    country,
+    product,
+    findingsJson,
+    language,
+    additionalInstructions
+  );
 
   const attempt = async (prompt: string): Promise<MarketResearchReport> => {
     const resultText = await runClaudeOnce(prompt, /* allowWebSearch */ false);
@@ -286,15 +294,27 @@ export async function writeReportFromFindings(
 export async function generateResearchReport(
   country: string,
   product: string,
-  language: "en" | "ka" = "en"
+  language: "en" | "ka" = "en",
+  additionalInstructions?: string
 ): Promise<MarketResearchReport> {
   // Pull official trade-flow data once, up front: its findings seed the
   // research pass (most decisive metric as pre-verified hard data), and its
   // structured summary is attached to the finished report for prominent
   // display. Best-effort — never blocks a report if Comtrade is unavailable.
   const tradeFlow = await fetchTradeFlow(country);
-  const findings = await collectResearchFindings(country, product, tradeFlow.findings);
-  const report = await writeReportFromFindings(country, product, findings, language);
+  const findings = await collectResearchFindings(
+    country,
+    product,
+    tradeFlow.findings,
+    additionalInstructions
+  );
+  const report = await writeReportFromFindings(
+    country,
+    product,
+    findings,
+    language,
+    additionalInstructions
+  );
   if (tradeFlow.summary) {
     report.tradeFlow = tradeFlow.summary;
   }

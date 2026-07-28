@@ -8,6 +8,7 @@ export function GenerateForm() {
   const router = useRouter();
   const [country, setCountry] = useState("");
   const [product, setProduct] = useState("");
+  const [additionalInstructions, setAdditionalInstructions] = useState("");
   const [language, setLanguage] = useState<"en" | "ka">("en");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +25,12 @@ export function GenerateForm() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country: country.trim(), product: product.trim(), language }),
+        body: JSON.stringify({
+          country: country.trim(),
+          product: product.trim(),
+          language,
+          additionalInstructions: additionalInstructions.trim(),
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -52,7 +58,12 @@ export function GenerateForm() {
       const res = await fetch("/api/check-cache", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country: country.trim(), product: product.trim(), language }),
+        body: JSON.stringify({
+          country: country.trim(),
+          product: product.trim(),
+          language,
+          additionalInstructions: additionalInstructions.trim(),
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         cached?: boolean;
@@ -104,6 +115,28 @@ export function GenerateForm() {
             className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500 disabled:bg-neutral-100"
           />
         </div>
+      </div>
+
+      <div className="mt-4">
+        <label htmlFor="additionalInstructions" className="block text-sm font-medium text-neutral-700">
+          Additional instructions <span className="font-normal text-neutral-400">(optional)</span>
+        </label>
+        <textarea
+          id="additionalInstructions"
+          value={additionalInstructions}
+          onChange={(e) => setAdditionalInstructions(e.target.value)}
+          placeholder="e.g. Focus on the HoReCa channel, or compare specifically against Moldovan wines"
+          disabled={submitting}
+          maxLength={1500}
+          rows={3}
+          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500 disabled:bg-neutral-100"
+        />
+        <p className="mt-1 text-xs text-neutral-500">
+          Extra guidance for this specific report, e.g. a channel to focus on or a
+          competitor to compare against. It can&apos;t make the model invent facts —
+          if the guidance asks for something no real source supports, the report will
+          flag it as a gap instead.
+        </p>
       </div>
 
       <div className="mt-4">

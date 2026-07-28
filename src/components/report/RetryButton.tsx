@@ -7,10 +7,12 @@ export function RetryButton({
   country,
   product,
   language,
+  additionalInstructions,
 }: {
   country: string;
   product: string;
   language?: "en" | "ka";
+  additionalInstructions?: string;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -23,7 +25,12 @@ export function RetryButton({
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country, product, language: language ?? "en" }),
+        body: JSON.stringify({
+          country,
+          product,
+          language: language ?? "en",
+          additionalInstructions,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

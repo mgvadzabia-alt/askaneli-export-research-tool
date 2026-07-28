@@ -29,10 +29,14 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Already signed in but visiting login/signup → send home.
-  if (hasSession && isPublic) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  // NOTE: deliberately no "already signed in → redirect away from /login" here.
+  // `hasSession` is only a cookie-presence check, not a signature check (Edge
+  // runtime has no Node crypto). A stale/invalid cookie (e.g. after an
+  // AUTH_SECRET rotation) would count as "signed in" here but fail the
+  // authoritative check on the home page, which redirects back to /login —
+  // creating an infinite redirect loop between the two cheap/strict checks.
+  // The equivalent "already signed in, skip the login form" convenience is
+  // instead done authoritatively in the login/signup pages themselves.
 
   return NextResponse.next();
 }
